@@ -10,7 +10,8 @@ Paid slice DoD
 - 2:00:00 file cap and 2:00:00 monthly quota (client tracked until billing is live)
 - Short Pro extracts can still use ffmpeg.wasm; long files + transcripts queue a worker job slip
 - Worker script extracts + WhisperX turbo (faster-whisper fallback)
-- Stripe creds later — no fake paid checkmarks
-Extractor: ffmpegwasm/ffmpeg.wasm. Native FFmpeg stays the agent-side snatcher. Same flags: `-vn -c:a libmp3lame -q:a 2`, AAC fallback.
+- Stripe creds later — no fake “paid” checkmarks
+Extractor: ffmpegwasm/ffmpeg.wasm — highest-rated in-browser FFmpeg. Native FFmpeg stays the agent-side snatcher. Same flags: `-vn -c:a libmp3lame -q:a 2`, AAC fallback.
 Motion: low. OriginKit: none needed. Canvas UI: none needed. Three.js: none. vgpu: none. Thinking: none.
 Type: Fustat (display) + IBM Plex Mono (chrome). Palette: oxide `#14110e`, paper `#f3eadc`, ember `#e25b2a`, brass `#c4a574`.
+UI foundation: custom. No Inter, no purple-cyan, no cream default.

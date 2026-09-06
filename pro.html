@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#14110e" />
+  <meta name="description" content="Snatcher Pro — two hours of extract and transcript. $9.99 a month." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Snatcher Pro</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "@ffmpeg/ffmpeg": "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm",
+      "@ffmpeg/util": "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="top">
+    <a class="mark" href="./">
+      <span class="mark-hook" aria-hidden="true"></span>
+      Snatcher
+    </a>
+    <p class="by">Pro · $9.99 / mo</p>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="kicker" id="gateKicker">Paid lane</p>
+      <h1>Two hours. Audio plus the words.</h1>
+      <p class="lede">Free Snatcher stays on-device and stops at five minutes. Pro sends long files to a worker that runs native FFmpeg and WhisperX (<span class="mono-inline">large-v3-turbo</span>). Cap is two hours per file and two hours transcribed each month.</p>
+    </section>
+
+    <section class="card pay" id="payCard">
+      <p class="status">$9.99 a month</p>
+      <p class="fmeta">Extract up to 2:00:00 · transcript TXT + SRT + JSON · optional speakers. Stripe keys land next. Until then this page can unlock locally so you can test the deck.</p>
+      <button type="button" class="go" id="checkout">Pay with Stripe</button>
+      <button type="button" class="ghost" id="devUnlock">Unlock this browser (dev)</button>
+      <p class="log" id="payLog"></p>
+    </section>
+
+    <section class="quota" id="quotaWrap" hidden>
+      <p class="kicker">This month</p>
+      <p class="quota-line" id="quotaLine">0:00 used of 2:00:00</p>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="7200" aria-valuenow="0" id="quotaBarWrap">
+        <span class="bar-fill" id="quotaBar"></span>
+      </div>
+    </section>
+
+    <section class="deck" id="proDeck" hidden aria-label="Pro extractor">
+      <input id="file" type="file" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.avi,.m4v,.mp3,.m4a,.wav" hidden />
+      <label class="drop" id="drop" for="file">
+        <span class="drop-rule">drop a long file</span>
+        <span class="drop-sub">video or audio · max 2:00:00 · worker for long jobs and transcripts</span>
+      </label>
+
+      <article class="card" id="fileCard" hidden>
+        <div class="meta">
+          <p class="fname" id="fname">—</p>
+          <p class="fmeta" id="fmeta">—</p>
+        </div>
+        <div class="formats" role="radiogroup" aria-label="Audio format">
+          <label class="chip"><input type="radio" name="fmt" value="mp3" checked /> MP3</label>
+          <label class="chip"><input type="radio" name="fmt" value="m4a" /> M4A</label>
+          <label class="chip"><input type="radio" name="fmt" value="wav" /> WAV</label>
+        </div>
+        <label class="toggle"><input type="checkbox" id="wantText" checked /> Transcribe (WhisperX turbo)</label>
+        <label class="toggle"><input type="checkbox" id="wantDiarize" /> Label speakers</label>
+        <button type="button" class="go" id="go">Run Pro job</button>
+        <button type="button" class="ghost" id="clear">Different file</button>
+      </article>
+
+      <article class="card work" id="workCard" hidden>
+        <p class="status" id="status">Queuing…</p>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barWrap">
+          <span class="bar-fill" id="bar"></span>
+        </div>
+        <p class="log" id="log"></p>
+      </article>
+
+      <article class="card done" id="doneCard" hidden>
+        <p class="status">Pack ready.</p>
+        <audio id="player" controls></audio>
+        <a class="go" id="download">Download audio</a>
+        <a class="ghost" id="downloadTxt" hidden>Transcript .txt</a>
+        <a class="ghost" id="downloadSrt" hidden>Subtitles .srt</a>
+        <a class="ghost" id="downloadJson" hidden>Job .json</a>
+        <button type="button" class="ghost" id="again">Another file</button>
+      </article>
+
+      <p class="err" id="err" hidden></p>
+    </section>
+
+    <section class="notes">
+      <h2>What Pro actually does</h2>
+      <ul>
+        <li>Free lane: ffmpeg.wasm in this tab, 5:00, no account.</li>
+        <li>Pro extract: native ffmpeg on a worker. Same LAME q2 path as the desktop snatcher.</li>
+        <li>Pro transcript: WhisperX over faster-whisper large-v3-turbo. Word times. SRT. Optional pyannote speakers.</li>
+        <li>A two-hour file cannot run in the browser. If the worker is offline the job is queued and the script lives in <code>worker/pro_job.py</code>.</li>
+        <li>Stripe is stubbed until you drop keys. Dev unlock is this browser only.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Snatcher Pro · dglxss · $9.99</p>
+  </footer>
+  <video id="probe" playsinline muted hidden></video>
+  <script type="module" src="./pro.js"></script>
+</body>
+</html>
